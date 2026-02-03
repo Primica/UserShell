@@ -1,0 +1,224 @@
+# Exemple complexe de script TOML pour UserShell
+# Ce fichier démontre un scénario d'entreprise complet avec plusieurs opérations
+
+# ============================================
+# CREATION DE LA STRUCTURE ORGANISATIONNELLE
+# ============================================
+
+# Créer les groupes de base
+[[groups]]
+name = "IT_Department"
+description = "Département informatique"
+
+[[groups]]
+name = "HR_Department"
+description = "Département ressources humaines"
+
+[[groups]]
+name = "Finance_Department"
+description = "Département financier"
+
+[[groups]]
+name = "Project_Managers"
+description = "Gestionnaires de projets"
+
+[[groups]]
+name = "Developers"
+description = "Équipe de développement"
+
+[[groups]]
+name = "DevOps"
+description = "Équipe DevOps et infrastructure"
+
+# ============================================
+# CREATION DES UTILISATEURS IT
+# ============================================
+
+[[users]]
+name = "admin_principal"
+password = "Admin@SecureP@ss2024!"
+fullname = "Administrateur Principal"
+description = "Compte administrateur principal du système"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Administrateurs", "IT_Department"]
+
+[[users]]
+name = "dev_lead"
+password = "DevL3ad@2024!"
+fullname = "Jean Développeur"
+description = "Lead développeur senior"
+password_never_expires = true
+cannot_change_password = false
+groups = ["IT_Department", "Developers", "Project_Managers"]
+
+[[users]]
+name = "dev_junior1"
+password = "DevJun1or@2024"
+fullname = "Marie Codeur"
+description = "Développeur junior frontend"
+password_never_expires = false
+cannot_change_password = false
+groups = ["IT_Department", "Developers", "Utilisateurs"]
+
+[[users]]
+name = "dev_junior2"
+password = "DevJun2or@2024"
+fullname = "Pierre Backend"
+description = "Développeur junior backend"
+password_never_expires = false
+cannot_change_password = false
+groups = ["IT_Department", "Developers", "Utilisateurs"]
+
+[[users]]
+name = "devops_admin"
+password = "DevOps@Adm1n2024"
+fullname = "Sophie Infrastructure"
+description = "Administrateur DevOps principal"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Administrateurs", "IT_Department", "DevOps"]
+
+[[users]]
+name = "devops_engineer"
+password = "DevOpsEng@2024"
+fullname = "Thomas Automation"
+description = "Ingénieur DevOps"
+password_never_expires = false
+cannot_change_password = false
+groups = ["IT_Department", "DevOps", "Utilisateurs"]
+
+# ============================================
+# CREATION DES UTILISATEURS RH
+# ============================================
+
+[[users]]
+name = "hr_manager"
+password = "HRMan@ger2024!"
+fullname = "Claire Ressources"
+description = "Manager des ressources humaines"
+password_never_expires = true
+cannot_change_password = false
+groups = ["HR_Department", "Project_Managers", "Utilisateurs"]
+
+[[users]]
+name = "hr_assistant"
+password = "HRAssist@2024"
+fullname = "Laura Assistant"
+description = "Assistante RH"
+password_never_expires = false
+cannot_change_password = false
+groups = ["HR_Department", "Utilisateurs"]
+
+# ============================================
+# CREATION DES UTILISATEURS FINANCE
+# ============================================
+
+[[users]]
+name = "finance_director"
+password = "FinDir@2024!Secure"
+fullname = "Marc Comptable"
+description = "Directeur financier"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Finance_Department", "Project_Managers", "Utilisateurs"]
+
+[[users]]
+name = "accountant1"
+password = "Acc0unt@2024"
+fullname = "Emma Chiffres"
+description = "Comptable senior"
+password_never_expires = false
+cannot_change_password = false
+groups = ["Finance_Department", "Utilisateurs"]
+
+[[users]]
+name = "accountant2"
+password = "Acc0unt2@2024"
+fullname = "Lucas Budget"
+description = "Analyste budgétaire"
+password_never_expires = false
+cannot_change_password = false
+groups = ["Finance_Department", "Utilisateurs"]
+
+# ============================================
+# UTILISATEURS TEMPORAIRES / STAGIAIRES
+# ============================================
+
+[[users]]
+name = "intern_dev"
+password = "Int3rn@Dev2024"
+fullname = "Sarah Stagiaire"
+description = "Stagiaire développement - Contrat 6 mois"
+password_never_expires = false
+cannot_change_password = true
+groups = ["IT_Department", "Developers", "Utilisateurs"]
+
+[[users]]
+name = "intern_hr"
+password = "Int3rn@HR2024"
+fullname = "Alex Formation"
+description = "Stagiaire RH - Contrat 3 mois"
+password_never_expires = false
+cannot_change_password = true
+groups = ["HR_Department", "Utilisateurs"]
+
+# ============================================
+# AJOUT DE MEMBRES AUX GROUPES SYSTEME
+# ============================================
+
+[[groups]]
+name = "Utilisateurs du Bureau à distance"
+action = "add_members"
+members = ["admin_principal", "devops_admin", "dev_lead"]
+
+[[groups]]
+name = "Utilisateurs"
+action = "add_members"
+members = ["hr_manager", "finance_director"]
+
+# ============================================
+# COMPTES DE SERVICE / TECHNIQUES
+# ============================================
+
+[[users]]
+name = "svc_backup"
+password = "SvcB@ckup!2024Complex"
+fullname = "Service de Sauvegarde"
+description = "Compte de service pour les sauvegardes automatiques"
+password_never_expires = true
+cannot_change_password = true
+groups = ["Administrateurs"]
+
+[[users]]
+name = "svc_monitoring"
+password = "SvcM0nit@r!2024"
+fullname = "Service de Monitoring"
+description = "Compte de service pour la supervision système"
+password_never_expires = true
+cannot_change_password = true
+groups = ["IT_Department"]
+
+# ============================================
+# GROUPES SPECIALISES
+# ============================================
+
+[[groups]]
+name = "Remote_Workers"
+description = "Employés en télétravail"
+members = ["dev_junior1", "dev_junior2", "hr_assistant", "accountant1"]
+
+[[groups]]
+name = "VPN_Users"
+description = "Utilisateurs autorisés VPN"
+members = ["dev_lead", "devops_admin", "hr_manager", "finance_director"]
+
+[[groups]]
+name = "Database_Admins"
+description = "Administrateurs de bases de données"
+members = ["devops_admin", "dev_lead"]
+
+[[groups]]
+name = "Security_Team"
+description = "Équipe de sécurité informatique"
+members = ["admin_principal", "devops_admin"]

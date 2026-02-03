@@ -1,0 +1,39 @@
+# Exemple simple de script TOML pour UserShell
+# Ce fichier démontre les opérations de base
+
+# Créer des utilisateurs
+[[users]]
+name = "alice"
+password = "P@ssw0rd123"
+fullname = "Alice Dupont"
+description = "Utilisatrice de test"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Utilisateurs"]
+
+[[users]]
+name = "bob"
+password = "SecurePass456!"
+fullname = "Bob Martin"
+description = "Administrateur système"
+password_never_expires = true
+groups = ["Administrateurs", "Utilisateurs"]
+
+[[users]]
+name = "charlie"
+password = "MyP@ss789"
+fullname = "Charlie Leblanc"
+description = "Développeur"
+password_never_expires = false
+groups = ["Utilisateurs"]
+
+# Créer des groupes
+[[groups]]
+name = "Developpeurs"
+description = "Groupe des développeurs"
+members = ["charlie"]
+
+[[groups]]
+name = "Support"
+description = "Équipe de support technique"
+members = ["alice"]

@@ -1,7 +1,7 @@
 # Module ShellCore - Moteur principal du shell
 
 $script:Running = $false
-$script:Prompt = "UserShell>"
+$script:Prompt = "UserShell> "
 
 function Start-UserShell
 {
@@ -52,76 +52,79 @@ function Invoke-ShellCommand
     $parts = $CommandLine -split '\s+', 2
     $command = $parts[0].ToLower()
     $args = if ($parts.Length -gt 1)
-    { $parts[1] 
+    { $parts[1]
     } else
-    { "" 
+    { ""
     }
 
     switch ($command)
     {
         "help"
-        { Show-ShellHelp 
+        { Show-ShellHelp
         }
         "exit"
-        { Stop-UserShell 
+        { Stop-UserShell
         }
         "quit"
-        { Stop-UserShell 
+        { Stop-UserShell
         }
         "clear"
-        { Clear-Host 
+        { Clear-Host
         }
         "cls"
-        { Clear-Host 
+        { Clear-Host
+        }
+        "source"
+        { Invoke-SourceScript -FilePath $args
         }
 
         # Commandes utilisateurs
         "user-list"
-        { Invoke-UserList 
+        { Invoke-UserList
         }
         "user-show"
-        { Invoke-UserShow -UserName $args 
+        { Invoke-UserShow -UserName $args
         }
         "user-create"
-        { Invoke-UserCreate 
+        { Invoke-UserCreate
         }
         "user-modify"
-        { Invoke-UserModify -UserName $args 
+        { Invoke-UserModify -UserName $args
         }
         "user-delete"
-        { Invoke-UserDelete -UserName $args 
+        { Invoke-UserDelete -UserName $args
         }
         "user-enable"
-        { Invoke-UserEnable -UserName $args 
+        { Invoke-UserEnable -UserName $args
         }
         "user-disable"
-        { Invoke-UserDisable -UserName $args 
+        { Invoke-UserDisable -UserName $args
         }
         "user-password"
-        { Invoke-UserPassword -UserName $args 
+        { Invoke-UserPassword -UserName $args
         }
 
         # Commandes groupes
         "group-list"
-        { Invoke-GroupList 
+        { Invoke-GroupList
         }
         "group-show"
-        { Invoke-GroupShow -GroupName $args 
+        { Invoke-GroupShow -GroupName $args
         }
         "group-create"
-        { Invoke-GroupCreate 
+        { Invoke-GroupCreate
         }
         "group-modify"
-        { Invoke-GroupModify -GroupName $args 
+        { Invoke-GroupModify -GroupName $args
         }
         "group-delete"
-        { Invoke-GroupDelete -GroupName $args 
+        { Invoke-GroupDelete -GroupName $args
         }
         "group-addmember"
-        { Invoke-GroupAddMember -GroupName $args 
+        { Invoke-GroupAddMember -GroupName $args
         }
         "group-removemember"
-        { Invoke-GroupRemoveMember -GroupName $args 
+        { Invoke-GroupRemoveMember -GroupName $args
         }
 
         default
@@ -141,6 +144,7 @@ function Show-ShellHelp
     Write-Host "  help                      - Afficher cette aide"
     Write-Host "  exit, quit                - Quitter le shell"
     Write-Host "  clear, cls                - Effacer l'ecran"
+    Write-Host "  source <fichier>          - Executer un script TOML"
 
     Write-Host "`nGestion des utilisateurs:" -ForegroundColor Yellow
     Write-Host "  user-list                 - Lister tous les utilisateurs"
@@ -489,6 +493,45 @@ function Invoke-GroupRemoveMember
     }
 
     Remove-LocalGroupMemberAccount -GroupName $GroupName -MemberName $memberName
+}
+
+function Invoke-SourceScript
+{
+    param([string]$FilePath)
+
+    if ([string]::IsNullOrWhiteSpace($FilePath))
+    {
+        Write-LogError "Usage: source <chemin_fichier.toml>"
+        Write-Host "`nExemple: source C:\scripts\users.toml" -ForegroundColor Yellow
+        return
+    }
+
+    # Résoudre le chemin relatif si nécessaire
+    if (-not [System.IO.Path]::IsPathRooted($FilePath))
+    {
+        $FilePath = Join-Path (Get-Location) $FilePath
+    }
+
+    if (-not (Test-Path $FilePath))
+    {
+        Write-LogError "Le fichier '$FilePath' n'existe pas"
+        return
+    }
+
+    # Vérifier l'extension
+    $extension = [System.IO.Path]::GetExtension($FilePath)
+    if ($extension -ne '.toml')
+    {
+        Write-LogError "Le fichier doit avoir l'extension .toml"
+        return
+    }
+
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Execution du script TOML" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "Fichier: $FilePath`n" -ForegroundColor Yellow
+
+    Invoke-TomlScript -FilePath $FilePath
 }
 
 Export-ModuleMember -Function Start-UserShell, Stop-UserShell

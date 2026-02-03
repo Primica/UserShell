@@ -1,0 +1,43 @@
+# Exemple de script TOML pour modifier des utilisateurs et groupes existants
+# Ce fichier démontre les opérations de modification
+
+# Modifier un utilisateur existant
+[[users]]
+name = "alice"
+action = "modify"
+fullname = "Alice Dupont-Bernard"
+description = "Chef de projet"
+password_never_expires = true
+
+[[users]]
+name = "bob"
+action = "modify"
+description = "Administrateur système senior"
+
+# Désactiver un utilisateur
+[[users]]
+name = "charlie"
+action = "disable"
+
+# Réactiver un utilisateur
+[[users]]
+name = "charlie"
+action = "enable"
+
+# Modifier un groupe existant
+[[groups]]
+name = "Developpeurs"
+action = "modify"
+description = "Équipe de développement logiciel"
+
+# Ajouter des membres à un groupe existant
+[[groups]]
+name = "Support"
+action = "add_members"
+members = ["bob", "alice"]
+
+# Retirer des membres d'un groupe
+[[groups]]
+name = "Developpeurs"
+action = "remove_members"
+members = ["charlie"]

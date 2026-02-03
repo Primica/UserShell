@@ -1,0 +1,24 @@
+# Exemple de script TOML pour supprimer des utilisateurs et groupes
+# ATTENTION: Ce script supprime définitivement les ressources spécifiées
+
+# Supprimer des utilisateurs
+[[users]]
+name = "alice"
+action = "delete"
+
+[[users]]
+name = "bob"
+action = "delete"
+
+[[users]]
+name = "charlie"
+action = "delete"
+
+# Supprimer des groupes
+[[groups]]
+name = "Developpeurs"
+action = "delete"
+
+[[groups]]
+name = "Support"
+action = "delete"
