@@ -77,6 +77,9 @@ function Invoke-ShellCommand
         "source"
         { Invoke-SourceScript -FilePath $args
         }
+        "dump"
+        { Invoke-DumpCommand -Arguments $args
+        }
 
         # Commandes utilisateurs
         "user-list"
@@ -145,6 +148,7 @@ function Show-ShellHelp
     Write-Host "  exit, quit                - Quitter le shell"
     Write-Host "  clear, cls                - Effacer l'ecran"
     Write-Host "  source <fichier>          - Executer un script TOML"
+    Write-Host "  dump [options]            - Exporter la configuration en TOML"
 
     Write-Host "`nGestion des utilisateurs:" -ForegroundColor Yellow
     Write-Host "  user-list                 - Lister tous les utilisateurs"
@@ -532,6 +536,119 @@ function Invoke-SourceScript
     Write-Host "Fichier: $FilePath`n" -ForegroundColor Yellow
 
     Invoke-TomlScript -FilePath $FilePath
+}
+
+function Invoke-DumpCommand
+{
+    param([string]$Arguments)
+
+    # Parser les arguments
+    $args = $Arguments.Trim() -split '\s+'
+
+    $outputPath = $null
+    $includeSystem = $false
+    $includeBuiltin = $false
+    $includeUsers = @()
+    $includeGroups = @()
+    $excludeUsers = @()
+    $excludeGroups = @()
+
+    $i = 0
+    while ($i -lt $args.Count)
+    {
+        $arg = $args[$i]
+
+        switch ($arg)
+        {
+            '--all'
+            {
+                $includeSystem = $true
+                $includeBuiltin = $true
+            }
+            '--system'
+            {
+                $includeSystem = $true
+                $includeBuiltin = $true
+            }
+            '--users'
+            {
+                $i++
+                if ($i -lt $args.Count)
+                {
+                    $includeUsers = $args[$i] -split ','
+                }
+            }
+            '--groups'
+            {
+                $i++
+                if ($i -lt $args.Count)
+                {
+                    $includeGroups = $args[$i] -split ','
+                }
+            }
+            '--exclude-users'
+            {
+                $i++
+                if ($i -lt $args.Count)
+                {
+                    $excludeUsers = $args[$i] -split ','
+                }
+            }
+            '--exclude-groups'
+            {
+                $i++
+                if ($i -lt $args.Count)
+                {
+                    $excludeGroups = $args[$i] -split ','
+                }
+            }
+            '--help'
+            {
+                Show-DumpHelp
+                return
+            }
+            default
+            {
+                if (-not $arg.StartsWith('--'))
+                {
+                    $outputPath = $arg
+                }
+            }
+        }
+
+        $i++
+    }
+
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Export TOML Dump" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    # Dump sélectif si des utilisateurs ou groupes spécifiques sont demandés
+    if ($includeUsers.Count -gt 0 -or $includeGroups.Count -gt 0)
+    {
+        Export-SelectiveTomlDump -OutputPath $outputPath -IncludeUsers $includeUsers -IncludeGroups $includeGroups
+    }
+    else
+    {
+        # Dump complet
+        $params = @{
+            OutputPath = $outputPath
+            IncludeSystemAccounts = $includeSystem
+            IncludeBuiltinGroups = $includeBuiltin
+        }
+
+        if ($excludeUsers.Count -gt 0)
+        {
+            $params['ExcludeUsers'] = $excludeUsers
+        }
+
+        if ($excludeGroups.Count -gt 0)
+        {
+            $params['ExcludeGroups'] = $excludeGroups
+        }
+
+        Export-TomlDump @params
+    }
 }
 
 Export-ModuleMember -Function Start-UserShell, Stop-UserShell

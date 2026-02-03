@@ -1,0 +1,81 @@
+# UserShell TOML Dump
+# Generated: 2024-01-15 14:30:45
+# Computer: DESKTOP-SERVER01
+
+# This file can be used with 'source' command to recreate this configuration
+# WARNING: Passwords are not exported and will need to be set manually
+
+# ============================================
+# USERS (5)
+# ============================================
+
+[[users]]
+name = "alice"
+# password = "CHANGE_ME"  # Password must be set manually
+fullname = "Alice Dupont"
+description = "Développeur senior"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Utilisateurs", "Developers", "Remote_Workers"]
+
+[[users]]
+name = "bob"
+# password = "CHANGE_ME"  # Password must be set manually
+fullname = "Bob Martin"
+description = "Administrateur système"
+password_never_expires = true
+cannot_change_password = false
+groups = ["Administrateurs", "Utilisateurs", "IT_Department"]
+
+[[users]]
+name = "charlie"
+# password = "CHANGE_ME"  # Password must be set manually
+fullname = "Charlie Leblanc"
+description = "Chef de projet"
+password_never_expires = false
+cannot_change_password = false
+groups = ["Utilisateurs", "Project_Managers"]
+
+[[users]]
+name = "dev_junior1"
+# password = "CHANGE_ME"  # Password must be set manually
+fullname = "Marie Codeur"
+description = "Développeur junior frontend"
+password_never_expires = false
+cannot_change_password = false
+groups = ["Utilisateurs", "Developers"]
+
+[[users]]
+name = "stagiaire_temp"
+# password = "CHANGE_ME"  # Password must be set manually
+fullname = "Sarah Stagiaire"
+description = "Stagiaire - Contrat 3 mois"
+password_never_expires = false
+cannot_change_password = true
+groups = ["Utilisateurs"]
+# NOTE: This account is currently DISABLED
+# action = "enable"  # Uncomment to enable on import
+
+# ============================================
+# GROUPS (4)
+# ============================================
+
+[[groups]]
+name = "Developers"
+description = "Équipe de développement logiciel"
+members = ["alice", "dev_junior1"]
+
+[[groups]]
+name = "IT_Department"
+description = "Département informatique"
+members = ["bob", "alice"]
+
+[[groups]]
+name = "Project_Managers"
+description = "Gestionnaires de projets"
+members = ["charlie"]
+
+[[groups]]
+name = "Remote_Workers"
+description = "Employés en télétravail"
+members = ["alice", "dev_junior1", "charlie"]

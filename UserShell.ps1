@@ -55,6 +55,7 @@ try
     Import-Module (Join-Path $ModulesPath "UserManager.psm1") -Force -ErrorAction Stop
     Import-Module (Join-Path $ModulesPath "GroupManager.psm1") -Force -ErrorAction Stop
     Import-Module (Join-Path $ModulesPath "ScriptExecutor.psm1") -Force -ErrorAction Stop
+    Import-Module (Join-Path $ModulesPath "DumpManager.psm1") -Force -ErrorAction Stop
     Import-Module (Join-Path $ModulesPath "ShellCore.psm1") -Force -ErrorAction Stop
 } catch
 {
