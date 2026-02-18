@@ -94,7 +94,7 @@ function Share-Path {
                                 }
                             }
                         } catch {
-                            Write-LogWarning "Erreur lors de l'énumération récursive de $p: $($_.Exception.Message)"
+                            Write-LogWarning "Erreur lors de l'énumération récursive de ${p}: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -165,7 +165,7 @@ function New-NetworkShare {
                     Grant-SmbShareAccess -Name $ShareName -AccountName $id -AccessRight $right -Force -ErrorAction Stop | Out-Null
                     Write-LogSuccess "Permission SMB accordee: $id -> $ShareName ($right)"
                 } catch {
-                    Write-LogError "Impossible d'accorder la permission SMB a $id: $($_.Exception.Message)"
+                    Write-LogError "Impossible d'accorder la permission SMB a ${id}: $($_.Exception.Message)"
                 }
             }
         }

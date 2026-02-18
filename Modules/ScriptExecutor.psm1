@@ -492,7 +492,7 @@ function Invoke-ShareFromConfig
         try {
             $resAcl = Share-Path -Path $p -Identity $identities -Access $access -Recursive:($recursive)
         } catch {
-            Write-LogError "Échec ACL pour $p: $($_.Exception.Message)"
+            Write-LogError "Échec ACL pour ${p}: $($_.Exception.Message)"
             $resAcl = $false
         }
 
@@ -504,7 +504,7 @@ function Invoke-ShareFromConfig
                 if ($paths.Count -gt 1 -and -not $nameToUse) { $nameToUse = ([System.IO.Path]::GetFileName($p)).Replace(' ', '_') }
                 New-NetworkShare -Path $p -ShareName $nameToUse -Identities $identities -Access (if ($access -eq 'Modify') { 'Change' } elseif ($access -eq 'FullControl') { 'Full' } else { 'Read' }) | Out-Null
             } catch {
-                Write-LogError "Échec SMB pour $p: $($_.Exception.Message)"
+                Write-LogError "Échec SMB pour ${p}: $($_.Exception.Message)"
                 $allOk = $false
             }
         }
