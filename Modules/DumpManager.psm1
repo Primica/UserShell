@@ -16,13 +16,11 @@ function Export-TomlDump
         $OutputPath = "dump_$timestamp.toml"
     }
 
-    # Résoudre le chemin complet
     if (-not [System.IO.Path]::IsPathRooted($OutputPath))
     {
         $OutputPath = Join-Path (Get-Location) $OutputPath
     }
 
-    # Vérifier l'extension
     if ([System.IO.Path]::GetExtension($OutputPath) -ne '.toml')
     {
         $OutputPath += '.toml'
@@ -32,10 +30,8 @@ function Export-TomlDump
 
     try
     {
-        # Construire le contenu TOML
         $tomlContent = @()
 
-        # En-tête
         $tomlContent += "# UserShell TOML Dump"
         $tomlContent += "# Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
         $tomlContent += "# Computer: $env:COMPUTERNAME"
@@ -44,18 +40,15 @@ function Export-TomlDump
         $tomlContent += "# WARNING: Passwords are not exported and will need to be set manually"
         $tomlContent += ""
 
-        # Récupérer tous les utilisateurs
         $users = Get-LocalUser -ErrorAction Stop
         $exportedUsersCount = 0
 
-        # Filtrer les utilisateurs système si nécessaire
         if (-not $IncludeSystemAccounts)
         {
             $systemAccounts = @('Administrator', 'Guest', 'DefaultAccount', 'WDAGUtilityAccount', 'Administrateur', 'Invité')
             $users = $users | Where-Object { $systemAccounts -notcontains $_.Name -and -not $_.Name.StartsWith('_') }
         }
 
-        # Exclure les utilisateurs spécifiés
         if ($ExcludeUsers -and $ExcludeUsers.Count -gt 0)
         {
             $users = $users | Where-Object { $ExcludeUsers -notcontains $_.Name }
@@ -77,11 +70,9 @@ function Export-TomlDump
             }
         }
 
-        # Récupérer tous les groupes
         $groups = Get-LocalGroup -ErrorAction Stop
         $exportedGroupsCount = 0
 
-        # Filtrer les groupes système si nécessaire
         if (-not $IncludeBuiltinGroups)
         {
             $builtinGroups = @(
@@ -99,7 +90,6 @@ function Export-TomlDump
             $groups = $groups | Where-Object { $builtinGroups -notcontains $_.Name }
         }
 
-        # Exclure les groupes spécifiés
         if ($ExcludeGroups -and $ExcludeGroups.Count -gt 0)
         {
             $groups = $groups | Where-Object { $ExcludeGroups -notcontains $_.Name }
@@ -121,7 +111,6 @@ function Export-TomlDump
             }
         }
 
-        # Écrire le fichier
         $tomlContent -join "`n" | Out-File -FilePath $OutputPath -Encoding UTF8 -Force
 
         Write-LogSuccess "Dump créé avec succès: $OutputPath"
@@ -150,7 +139,6 @@ function Export-UserToToml
     $lines += "[[users]]"
     $lines += "name = `"$($User.Name)`""
 
-    # Note sur le mot de passe
     $lines += "# password = `"CHANGE_ME`"  # Password must be set manually"
 
     if (-not [string]::IsNullOrWhiteSpace($User.FullName))
@@ -167,7 +155,6 @@ function Export-UserToToml
     $lines += "password_never_expires = $($User.PasswordExpires -eq $false)".ToLower()
     $lines += "cannot_change_password = $($User.UserMayChangePassword -eq $false)".ToLower()
 
-    # Récupérer les groupes de l'utilisateur
     try
     {
         $userGroups = Get-LocalGroup -ErrorAction SilentlyContinue | Where-Object {
@@ -188,10 +175,9 @@ function Export-UserToToml
         }
     } catch
     {
-        # Ignorer les erreurs de récupération des groupes
+
     }
 
-    # Ajouter un commentaire sur l'état
     if (-not $User.Enabled)
     {
         $lines += "# NOTE: This account is currently DISABLED"
@@ -218,14 +204,12 @@ function Export-GroupToToml
         $lines += "description = `"$escapedDesc`""
     }
 
-    # Récupérer les membres du groupe
     try
     {
         $members = Get-LocalGroupMember -Group $Group.Name -ErrorAction SilentlyContinue
 
         if ($members -and $members.Count -gt 0)
         {
-            # Extraire seulement le nom d'utilisateur (sans le domaine/ordinateur)
             $memberNames = $members | ForEach-Object {
                 $name = $_.Name
                 if ($name.Contains('\'))
@@ -263,13 +247,11 @@ function Export-SelectiveTomlDump
         $OutputPath = "dump_selective_$timestamp.toml"
     }
 
-    # Résoudre le chemin complet
     if (-not [System.IO.Path]::IsPathRooted($OutputPath))
     {
         $OutputPath = Join-Path (Get-Location) $OutputPath
     }
 
-    # Vérifier l'extension
     if ([System.IO.Path]::GetExtension($OutputPath) -ne '.toml')
     {
         $OutputPath += '.toml'
@@ -281,7 +263,6 @@ function Export-SelectiveTomlDump
     {
         $tomlContent = @()
 
-        # En-tête
         $tomlContent += "# UserShell TOML Selective Dump"
         $tomlContent += "# Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
         $tomlContent += "# Computer: $env:COMPUTERNAME"
@@ -290,7 +271,6 @@ function Export-SelectiveTomlDump
         $exportedUsersCount = 0
         $exportedGroupsCount = 0
 
-        # Export des utilisateurs spécifiés
         if ($IncludeUsers -and $IncludeUsers.Count -gt 0)
         {
             $tomlContent += "# ============================================"
@@ -316,7 +296,6 @@ function Export-SelectiveTomlDump
             }
         }
 
-        # Export des groupes spécifiés
         if ($IncludeGroups -and $IncludeGroups.Count -gt 0)
         {
             $tomlContent += "# ============================================"
@@ -342,7 +321,6 @@ function Export-SelectiveTomlDump
             }
         }
 
-        # Écrire le fichier
         $tomlContent -join "`n" | Out-File -FilePath $OutputPath -Encoding UTF8 -Force
 
         Write-LogSuccess "Dump sélectif créé avec succès: $OutputPath"

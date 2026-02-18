@@ -14,7 +14,6 @@ function Invoke-TomlScript
 
     Write-LogInfo "Exécution du script: $FilePath"
 
-    # Parser le fichier TOML
     $script = ConvertFrom-Toml -FilePath $FilePath
 
     if ($null -eq $script)
@@ -26,7 +25,6 @@ function Invoke-TomlScript
     $successCount = 0
     $errorCount = 0
 
-    # Exécuter les opérations sur les utilisateurs
     if ($script.ContainsKey('users') -and $script.users.Count -gt 0)
     {
         Write-Host "`n========================================" -ForegroundColor Cyan
@@ -46,7 +44,6 @@ function Invoke-TomlScript
         }
     }
 
-    # Exécuter les opérations sur les groupes
     if ($script.ContainsKey('groups') -and $script.groups.Count -gt 0)
     {
         Write-Host "`n========================================" -ForegroundColor Cyan
@@ -66,7 +63,6 @@ function Invoke-TomlScript
         }
     }
 
-    # Rapport d'exécution
     Write-Host "`n========================================" -ForegroundColor Cyan
     Write-Host "Rapport d'exécution" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
@@ -143,27 +139,23 @@ function Invoke-UserCreateFromConfig
 
     $userName = $UserConfig['name']
 
-    # Vérifier si l'utilisateur existe déjà
     if (Test-LocalUserExists -UserName $userName)
     {
         Write-LogWarning "L'utilisateur '$userName' existe déjà, ignoré"
         return $true
     }
 
-    # Gérer le mot de passe
     $password = $null
     if ($UserConfig.ContainsKey('password'))
     {
         $password = ConvertTo-SecureString $UserConfig['password'] -AsPlainText -Force
     } else
     {
-        # Générer un mot de passe aléatoire si non fourni
         $randomPassword = -join ((65..90) + (97..122) + (48..57) + (33, 35, 36, 37, 38, 42) | Get-Random -Count 16 | ForEach-Object { [char]$_ })
         $password = ConvertTo-SecureString $randomPassword -AsPlainText -Force
         Write-LogWarning "Mot de passe généré automatiquement pour '$userName'"
     }
 
-    # Construire les propriétés
     $properties = @{
         AccountNeverExpires = $true
     }
@@ -188,10 +180,8 @@ function Invoke-UserCreateFromConfig
         $properties['UserMayNotChangePassword'] = $UserConfig['cannot_change_password']
     }
 
-    # Créer l'utilisateur
     $result = New-LocalUserAccount -UserName $userName -Password $password -Properties $properties
 
-    # Ajouter aux groupes si spécifié
     if ($result -and $UserConfig.ContainsKey('groups'))
     {
         foreach ($groupName in $UserConfig['groups'])
@@ -223,7 +213,6 @@ function Invoke-UserModifyFromConfig
         return $false
     }
 
-    # Construire les propriétés à modifier
     $properties = @{}
 
     if ($UserConfig.ContainsKey('fullname'))
@@ -252,17 +241,14 @@ function Invoke-UserModifyFromConfig
         return $true
     }
 
-    # Modifier l'utilisateur
     $result = Update-LocalUserAccount -UserName $userName -Properties $properties
 
-    # Changer le mot de passe si spécifié
     if ($result -and $UserConfig.ContainsKey('password'))
     {
         $password = ConvertTo-SecureString $UserConfig['password'] -AsPlainText -Force
         $result = Set-LocalUserPassword -UserName $userName -NewPassword $password
     }
 
-    # Gérer les groupes si spécifié
     if ($result -and $UserConfig.ContainsKey('groups'))
     {
         foreach ($groupName in $UserConfig['groups'])
@@ -274,7 +260,7 @@ function Invoke-UserModifyFromConfig
                     Add-LocalGroupMemberAccount -GroupName $groupName -MemberName $userName | Out-Null
                 } catch
                 {
-                    # Utilisateur déjà membre, ignorer
+                    Write-LogWarning "L'utilisateur '$userName' est déjà membre du groupe '$groupName'"
                 }
             }
         }
@@ -342,7 +328,6 @@ function Invoke-GroupCreateFromConfig
 
     $groupName = $GroupConfig['name']
 
-    # Vérifier si le groupe existe déjà
     if (Test-LocalGroupExists -GroupName $groupName)
     {
         Write-LogWarning "Le groupe '$groupName' existe déjà, ignoré"
@@ -355,10 +340,8 @@ function Invoke-GroupCreateFromConfig
     { "" 
     }
 
-    # Créer le groupe
     $result = New-LocalGroupAccount -GroupName $groupName -Description $description
 
-    # Ajouter les membres si spécifié
     if ($result -and $GroupConfig.ContainsKey('members'))
     {
         foreach ($memberName in $GroupConfig['members'])

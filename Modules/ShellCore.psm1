@@ -81,7 +81,6 @@ function Invoke-ShellCommand
         { Invoke-DumpCommand -Arguments $args
         }
 
-        # Commandes utilisateurs
         "user-list"
         { Invoke-UserList
         }
@@ -107,7 +106,6 @@ function Invoke-ShellCommand
         { Invoke-UserPassword -UserName $args
         }
 
-        # Commandes groupes
         "group-list"
         { Invoke-GroupList
         }
@@ -172,7 +170,6 @@ function Show-ShellHelp
     Write-Host "`n========================================`n" -ForegroundColor Cyan
 }
 
-# Fonctions pour les utilisateurs
 
 function Invoke-UserList
 {
@@ -361,7 +358,6 @@ function Invoke-UserPassword
     Set-LocalUserPassword -UserName $UserName -NewPassword $newPassword
 }
 
-# Fonctions pour les groupes
 
 function Invoke-GroupList
 {
@@ -510,7 +506,6 @@ function Invoke-SourceScript
         return
     }
 
-    # Résoudre le chemin relatif si nécessaire
     if (-not [System.IO.Path]::IsPathRooted($FilePath))
     {
         $FilePath = Join-Path (Get-Location) $FilePath
@@ -522,7 +517,6 @@ function Invoke-SourceScript
         return
     }
 
-    # Vérifier l'extension
     $extension = [System.IO.Path]::GetExtension($FilePath)
     if ($extension -ne '.toml')
     {
@@ -542,7 +536,6 @@ function Invoke-DumpCommand
 {
     param([string]$Arguments)
 
-    # Parser les arguments
     $args = $Arguments.Trim() -split '\s+'
 
     $outputPath = $null
@@ -623,14 +616,12 @@ function Invoke-DumpCommand
     Write-Host "Export TOML Dump" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    # Dump sélectif si des utilisateurs ou groupes spécifiques sont demandés
     if ($includeUsers.Count -gt 0 -or $includeGroups.Count -gt 0)
     {
         Export-SelectiveTomlDump -OutputPath $outputPath -IncludeUsers $includeUsers -IncludeGroups $includeGroups
     }
     else
     {
-        # Dump complet
         $params = @{
             OutputPath = $outputPath
             IncludeSystemAccounts = $includeSystem

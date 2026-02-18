@@ -6,26 +6,24 @@
     UserShell - Shell pour la gestion des utilisateurs et groupes locaux
 
 .DESCRIPTION
-    Outil en ligne de commande avec architecture POO pour administrer les utilisateurs
+    Outil en ligne de commande pour administrer les utilisateurs
     et groupes locaux Windows. Necessite des privileges administrateur.
 
 .NOTES
     Version: 1.0
-    Auteur: UserShell
-    Date: 2024
+    Auteur: Primica
+    Date: 2026
 #>
 
 param(
     [switch]$Debug
 )
 
-# Configuration des chemins
 $ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ModulesPath = Join-Path $ScriptPath "Modules"
 $LogsPath = Join-Path $ScriptPath "Logs"
 $LogFile = Join-Path $LogsPath "usershell_$(Get-Date -Format 'yyyyMMdd').log"
 
-# Verification des privileges administrateur
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
 {
     Write-Host "ERREUR: Ce script necessite des privileges administrateur." -ForegroundColor Red
@@ -33,7 +31,6 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit 1
 }
 
-# Verification de la version PowerShell
 if ($PSVersionTable.PSVersion.Major -lt 5)
 {
     Write-Host "ERREUR: PowerShell 5.1 ou superieur est requis." -ForegroundColor Red
@@ -41,13 +38,11 @@ if ($PSVersionTable.PSVersion.Major -lt 5)
     exit 1
 }
 
-# Creation du repertoire de logs si necessaire
 if (-not (Test-Path $LogsPath))
 {
     New-Item -ItemType Directory -Path $LogsPath -Force | Out-Null
 }
 
-# Chargement des modules
 try
 {
     Import-Module (Join-Path $ModulesPath "Logger.psm1") -Force -ErrorAction Stop
@@ -63,10 +58,8 @@ try
     exit 1
 }
 
-# Demarrage du shell
 try
 {
-    # Initialisation du logger
     Initialize-Logger -LogFilePath $LogFile
 
     if ($Debug)
@@ -75,7 +68,6 @@ try
         Write-LogInfo "Mode debug active"
     }
 
-    # Demarrage du shell
     Start-UserShell
 } catch
 {
@@ -84,6 +76,5 @@ try
     exit 1
 } finally
 {
-    # Nettoyage
     Write-LogInfo "Fermeture du shell"
 }

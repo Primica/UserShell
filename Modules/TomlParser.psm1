@@ -27,16 +27,13 @@ function ConvertFrom-Toml
         {
             $line = $line.Trim()
 
-            # Ignorer les lignes vides et commentaires
             if ([string]::IsNullOrWhiteSpace($line) -or $line.StartsWith('#'))
             {
                 continue
             }
 
-            # Détecter les sections [[users]] ou [[groups]]
             if ($line -match '^\[\[(\w+)\]\]$')
             {
-                # Sauvegarder l'objet précédent si existant
                 if ($null -ne $currentObject -and $null -ne $currentSection)
                 {
                     $result[$currentSection] += $currentObject
@@ -47,20 +44,16 @@ function ConvertFrom-Toml
                 continue
             }
 
-            # Détecter les clés-valeurs
             if ($line -match '^(\w+)\s*=\s*(.+)$')
             {
                 $key = $Matches[1].Trim()
                 $value = $Matches[2].Trim()
 
-                # Gérer les différents types de valeurs
                 if ($value -match '^"(.+)"$')
                 {
-                    # String entre guillemets
                     $currentObject[$key] = $Matches[1]
                 } elseif ($value -match '^\[(.+)\]$')
                 {
-                    # Array
                     $arrayContent = $Matches[1]
                     $currentObject[$key] = @($arrayContent -split ',' | ForEach-Object {
                             $item = $_.Trim()
@@ -74,11 +67,9 @@ function ConvertFrom-Toml
                         })
                 } elseif ($value -eq 'true' -or $value -eq 'false')
                 {
-                    # Boolean
                     $currentObject[$key] = $value -eq 'true'
                 } else
                 {
-                    # Nombre ou string sans guillemets
                     if ($value -match '^\d+$')
                     {
                         $currentObject[$key] = [int]$value
@@ -90,7 +81,6 @@ function ConvertFrom-Toml
             }
         }
 
-        # Sauvegarder le dernier objet
         if ($null -ne $currentObject -and $null -ne $currentSection)
         {
             $result[$currentSection] += $currentObject
@@ -133,7 +123,6 @@ function Test-TomlFile
             return $false
         }
 
-        # Validation basique de la structure
         if (-not $parsed.ContainsKey('users') -and -not $parsed.ContainsKey('groups'))
         {
             Write-LogError "Le fichier TOML doit contenir au moins une section [[users]] ou [[groups]]"
