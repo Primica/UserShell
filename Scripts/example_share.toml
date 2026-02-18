@@ -1,0 +1,7 @@
+# Exemple de partage NTFS pour UserShell
+
+[[shares]]
+paths = ["C:\\Data\\Projet", "C:\\Data\\Public"]
+identities = ["DOMAIN\\Equipe", "Utilisateurs"]
+access = "Modify"
+recursive = true

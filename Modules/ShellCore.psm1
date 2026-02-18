@@ -77,6 +77,12 @@ function Invoke-ShellCommand
         "source"
         { Invoke-SourceScript -FilePath $args
         }
+        "share-apply"
+        { Invoke-ShareApply -Arguments $args
+        }
+        "share-smb"
+        { Invoke-ShareSmb -Arguments $args
+        }
         "dump"
         { Invoke-DumpCommand -Arguments $args
         }
@@ -147,6 +153,8 @@ function Show-ShellHelp
     Write-Host "  clear, cls                - Effacer l'ecran"
     Write-Host "  source <fichier>          - Executer un script TOML"
     Write-Host "  dump [options]            - Exporter la configuration en TOML"
+    Write-Host "  share-apply               - Appliquer des ACL NTFS interactifs"
+    Write-Host "  share-smb                 - Creer un partage SMB interactif"
 
     Write-Host "`nGestion des utilisateurs:" -ForegroundColor Yellow
     Write-Host "  user-list                 - Lister tous les utilisateurs"
@@ -356,6 +364,55 @@ function Invoke-UserPassword
     }
 
     Set-LocalUserPassword -UserName $UserName -NewPassword $newPassword
+}
+
+function Invoke-ShareApply
+{
+    param([string]$Arguments)
+
+    Write-Host "`nApplication de permissions NTFS (ACL)" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $pathsInput = Read-Host "Chemins (separes par ,)"
+    if ([string]::IsNullOrWhiteSpace($pathsInput)) { Write-LogError "Aucun chemin fourni"; return }
+    $paths = $pathsInput -split ',' | ForEach-Object { $_.Trim() }
+
+    $identsInput = Read-Host "Identites (utilisateurs/groupes, separes par ,)"
+    if ([string]::IsNullOrWhiteSpace($identsInput)) { Write-LogError "Aucune identite fournie"; return }
+    $idents = $identsInput -split ',' | ForEach-Object { $_.Trim() }
+
+    $access = Read-Host "Acces (Read/Modify/FullControl) [Read]"
+    if ([string]::IsNullOrWhiteSpace($access)) { $access = 'Read' }
+
+    $recursiveInput = Read-Host "Appliquer recursivement? (O/N) [N]"
+    $recursive = ($recursiveInput -eq 'O' -or $recursiveInput -eq 'o')
+
+    Invoke-ShareOperation -Paths $paths -Identities $idents -Access $access -Recursive:($recursive)
+}
+
+function Invoke-ShareSmb
+{
+    param([string]$Arguments)
+
+    Write-Host "`nCreation d'un partage SMB" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $pathsInput = Read-Host "Chemins a partager (separes par ,)"
+    if ([string]::IsNullOrWhiteSpace($pathsInput)) { Write-LogError "Aucun chemin fourni"; return }
+    $paths = $pathsInput -split ',' | ForEach-Object { $_.Trim() }
+
+    $shareName = Read-Host "Nom du partage (laisser vide pour utiliser le nom du dossier)"
+
+    $identsInput = Read-Host "Identites (utilisateurs/groupes, separes par ,)"
+    $idents = @()
+    if (-not [string]::IsNullOrWhiteSpace($identsInput)) { $idents = $identsInput -split ',' | ForEach-Object { $_.Trim() } }
+
+    $access = Read-Host "Acces SMB (Read/Change/Full) [Read]"
+    if ([string]::IsNullOrWhiteSpace($access)) { $access = 'Read' }
+
+    foreach ($p in $paths) {
+        New-NetworkShare -Path $p -ShareName $shareName -Identities $idents -Access $access
+    }
 }
 
 

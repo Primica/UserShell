@@ -63,6 +63,25 @@ function Invoke-TomlScript
         }
     }
 
+    if ($script.ContainsKey('shares') -and $script.shares.Count -gt 0)
+    {
+        Write-Host "`n========================================" -ForegroundColor Cyan
+        Write-Host "Traitement des partages (shares)" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+
+        foreach ($shareConfig in $script.shares)
+        {
+            $result = Invoke-ShareFromConfig -ShareConfig $shareConfig
+            if ($result)
+            {
+                $successCount++
+            } else
+            {
+                $errorCount++
+            }
+        }
+    }
+
     Write-Host "`n========================================" -ForegroundColor Cyan
     Write-Host "Rapport d'exécution" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
@@ -442,4 +461,72 @@ function Invoke-GroupRemoveMembersFromConfig
     return $success
 }
 
-Export-ModuleMember -Function Invoke-TomlScript
+Export-ModuleMember -Function Invoke-TomlScript, Invoke-ShareFromConfig, Invoke-ShareOperation
+
+function Invoke-ShareFromConfig
+{
+    param(
+        [hashtable]$ShareConfig
+    )
+
+    if (-not $ShareConfig.ContainsKey('paths'))
+    {
+        Write-LogError "Configuration share invalide: 'paths' est requis"
+        return $false
+    }
+
+    $paths = @($ShareConfig['paths']) -replace '^"|"$',''
+
+    $identities = @()
+    if ($ShareConfig.ContainsKey('identities')) { $identities = @($ShareConfig['identities']) }
+
+    $access = if ($ShareConfig.ContainsKey('access')) { $ShareConfig['access'] } else { 'Read' }
+    $recursive = if ($ShareConfig.ContainsKey('recursive')) { [bool]$ShareConfig['recursive'] } else { $false }
+
+    $smb = if ($ShareConfig.ContainsKey('smb')) { [bool]$ShareConfig['smb'] } else { $false }
+    $shareName = if ($ShareConfig.ContainsKey('share_name')) { $ShareConfig['share_name'] } else { $null }
+
+    $allOk = $true
+    foreach ($p in $paths) {
+        $resAcl = $false
+        try {
+            $resAcl = Share-Path -Path $p -Identity $identities -Access $access -Recursive:($recursive)
+        } catch {
+            Write-LogError "Échec ACL pour $p: $($_.Exception.Message)"
+            $resAcl = $false
+        }
+
+        if (-not $resAcl) { $allOk = $false }
+
+        if ($smb) {
+            try {
+                $nameToUse = $shareName
+                if ($paths.Count -gt 1 -and -not $nameToUse) { $nameToUse = ([System.IO.Path]::GetFileName($p)).Replace(' ', '_') }
+                New-NetworkShare -Path $p -ShareName $nameToUse -Identities $identities -Access (if ($access -eq 'Modify') { 'Change' } elseif ($access -eq 'FullControl') { 'Full' } else { 'Read' }) | Out-Null
+            } catch {
+                Write-LogError "Échec SMB pour $p: $($_.Exception.Message)"
+                $allOk = $false
+            }
+        }
+    }
+
+    return $allOk
+}
+
+function Invoke-ShareOperation
+{
+    param(
+        [string[]]$Paths,
+        [string[]]$Identities,
+        [string]$Access = 'Read',
+        [switch]$Recursive
+    )
+
+    try {
+        Share-Path -Path $Paths -Identity $Identities -Access $Access -Recursive:($Recursive.IsPresent)
+        return $true
+    } catch {
+        Write-LogError "Erreur Invoke-ShareOperation: $($_.Exception.Message)"
+        return $false
+    }
+}
