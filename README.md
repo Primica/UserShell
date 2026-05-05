@@ -17,6 +17,9 @@ Commandes principales du REPL
 - `source <fichier.toml>` : exécuter un script TOML contenant sections `users`, `groups`, `shares`
 - `share-apply` : interface interactive pour appliquer des ACL NTFS sur un ou plusieurs chemins
 - `share-smb` : interface interactive pour créer un partage SMB et configurer les permissions SMB
+- `ad-help` : afficher les commandes d'orchestration Active Directory
+- `ad-auto-core` : automatiser le socle AD (design + baseline GPO + delegation + health checks)
+- `ad-full-deploy` : assistant complet guide (confirmations par etape, mode simulation global, journal dans `Logs/`)
 
 Gestion via TOML
 Section `shares` attend une table avec les clefs suivantes.
@@ -44,3 +47,7 @@ Notes et bonnes pratiques
 
 Support
 Ouvrez une issue dans le depot ou contactez l'auteur du projet pour signaler des bugs ou proposer des améliorations.
+
+Extension Active Directory
+- Un kit de deploiement AD centralise est disponible dans `ActiveDirectory/`.
+- Voir `ActiveDirectory/README.md` pour l'ordre d'execution (architecture redondee, GPO, delegation, migration et exploitation).

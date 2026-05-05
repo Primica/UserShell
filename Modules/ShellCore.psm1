@@ -40,7 +40,7 @@ function Show-Banner
 {
     Clear-Host
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "    UserShell - Gestion Locale v1.0    " -ForegroundColor Cyan
+    Write-Host " UserShell - Gestion Locale + AD v1.1  " -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "Tapez 'help' pour afficher l'aide`n" -ForegroundColor Yellow
 }
@@ -85,6 +85,48 @@ function Invoke-ShellCommand
         }
         "dump"
         { Invoke-DumpCommand -Arguments $args
+        }
+        "ad-help"
+        { Show-AdHelp
+        }
+        "ad-paths"
+        { Show-AdPaths
+        }
+        "ad-design"
+        { Invoke-AdDesign
+        }
+        "ad-deploy-primary"
+        { Invoke-AdDeployPrimary
+        }
+        "ad-deploy-secondary"
+        { Invoke-AdDeploySecondary
+        }
+        "ad-health"
+        { Invoke-AdHealth
+        }
+        "ad-baseline"
+        { Invoke-AdBaseline
+        }
+        "ad-delegate"
+        { Invoke-AdDelegate
+        }
+        "ad-migrate"
+        { Invoke-AdMigrate
+        }
+        "ad-validate"
+        { Invoke-AdValidate
+        }
+        "ad-audit"
+        { Invoke-AdAudit
+        }
+        "ad-restore-check"
+        { Invoke-AdRestoreCheck
+        }
+        "ad-auto-core"
+        { Invoke-AdAutoCore
+        }
+        "ad-full-deploy"
+        { Invoke-AdFullDeploy
         }
 
         "user-list"
@@ -155,6 +197,22 @@ function Show-ShellHelp
     Write-Host "  dump [options]            - Exporter la configuration en TOML"
     Write-Host "  share-apply               - Appliquer des ACL NTFS interactifs"
     Write-Host "  share-smb                 - Creer un partage SMB interactif"
+
+    Write-Host "`nOrchestration Active Directory:" -ForegroundColor Yellow
+    Write-Host "  ad-help                   - Aide des commandes AD"
+    Write-Host "  ad-paths                  - Afficher les chemins AD du projet"
+    Write-Host "  ad-design                 - Provisionner OU/groupes/sites AD"
+    Write-Host "  ad-deploy-primary         - Promouvoir le premier DC"
+    Write-Host "  ad-deploy-secondary       - Promouvoir le second DC"
+    Write-Host "  ad-health                 - Verifier replication/DNS/NTP/services"
+    Write-Host "  ad-baseline               - Appliquer la baseline GPO"
+    Write-Host "  ad-delegate               - Appliquer les delegations OU"
+    Write-Host "  ad-migrate                - Migrer des utilisateurs via CSV"
+    Write-Host "  ad-validate               - Lancer la recette pilote"
+    Write-Host "  ad-audit                  - Executer l'audit trimestriel"
+    Write-Host "  ad-restore-check          - Verifier la readiness restauration"
+    Write-Host "  ad-auto-core              - Enchainer socle AD automatise"
+    Write-Host "  ad-full-deploy            - Assistant complet guide avec logs"
 
     Write-Host "`nGestion des utilisateurs:" -ForegroundColor Yellow
     Write-Host "  user-list                 - Lister tous les utilisateurs"

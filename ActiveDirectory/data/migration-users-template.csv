@@ -1,0 +1,3 @@
+SamAccountName,UserPrincipalName,DisplayName,GivenName,Surname,Description,Groups
+jdupont,jdupont@corp.contoso.local,Jean Dupont,Jean,Dupont,Equipe RH,GG_HR;DL_FileSrv_HR_Modify
+imartin,imartin@corp.contoso.local,Ines Martin,Ines,Martin,Equipe IT,GG_IT;DL_FileSrv_IT_Full
